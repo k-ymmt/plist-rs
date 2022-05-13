@@ -1,7 +1,8 @@
 use std::ffi::{c_void, CStr, CString};
 use std::os::raw::c_char;
 use std::ptr::{null_mut, slice_from_raw_parts};
-use crate::{Plist, plist_get_bool_val, plist_get_data_val, plist_get_key_val, plist_get_real_val, plist_get_string_val, plist_get_uid_val, plist_get_uint_val, plist_mem_free, plist_new_bool, plist_new_data, plist_new_date, plist_new_null, plist_new_real, plist_new_string, plist_new_uid, plist_new_uint, plist_set_bool_val, plist_set_data_val, plist_set_date_val, plist_set_key_val, plist_set_real_val, plist_set_string_val, plist_set_uid_val, plist_set_uint_val, PlistType};
+use crate::{Plist, plist_get_bool_val, plist_get_data_val, plist_get_key_val, plist_get_real_val, plist_get_string_val, plist_get_uid_val, plist_get_uint_val, plist_mem_free, plist_new_bool, plist_new_data, plist_new_date, plist_new_null, plist_new_real, plist_new_string, plist_new_uid, plist_new_uint, plist_set_bool_val, plist_set_data_val, plist_set_date_val, plist_set_key_val, plist_set_real_val, plist_set_string_val, plist_set_uid_val, plist_set_uint_val};
+use crate::plist_node_type::PlistNodeType;
 
 // Getters
 impl Plist {
@@ -54,7 +55,7 @@ impl Plist {
     }
 
     pub fn as_uint(&self) -> Option<u64> {
-        if self.plist_type() != PlistType::UInt {
+        if self.node_type() != PlistNodeType::UInt {
             return None
         }
 
@@ -65,7 +66,7 @@ impl Plist {
     }
 
     pub fn as_real(&self) -> Option<f64> {
-        if self.plist_type() != PlistType::Real {
+        if self.node_type() != PlistNodeType::Real {
             return None
         }
 
@@ -91,7 +92,7 @@ impl Plist {
     }
 
     pub fn as_uid(&self) -> Option<u64> {
-        if self.plist_type() != PlistType::UID {
+        if self.node_type() != PlistNodeType::UID {
             return None
         }
 

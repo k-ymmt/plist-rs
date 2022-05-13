@@ -10,48 +10,14 @@ use std::fmt::{Debug, Formatter};
 use std::os::raw::c_char;
 use std::ptr::null_mut;
 use crate::plist_error::PlistError;
+use crate::plist_node_type::PlistNodeType;
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 pub mod plist_error;
 pub mod array;
 pub mod dict;
 pub mod value;
-
-#[derive(Debug, Eq, PartialEq)]
-pub enum PlistType {
-    Boolean,
-    UInt,
-    Real,
-    String,
-    Array,
-    Dictionary,
-    Date,
-    Data,
-    Key,
-    UID,
-    Null,
-    None
-}
-
-impl PlistType {
-    fn from(plist_type: plist_type) -> Self {
-        match plist_type {
-            plist_type_PLIST_BOOLEAN => Self::Boolean,
-            plist_type_PLIST_UINT => Self::UInt,
-            plist_type_PLIST_REAL => Self::Real,
-            plist_type_PLIST_STRING => Self::String,
-            plist_type_PLIST_ARRAY => Self::Array,
-            plist_type_PLIST_DICT => Self::Dictionary,
-            plist_type_PLIST_DATE => Self::Date,
-            plist_type_PLIST_DATA => Self::Data,
-            plist_type_PLIST_KEY => Self::Key,
-            plist_type_PLIST_UID => Self::UID,
-            plist_type_PLIST_NULL => Self::Null,
-            plist_type_PLIST_NONE => Self::None,
-            _ => panic!("Unexpected plist_type")
-        }
-    }
-}
+pub mod plist_node_type;
 
 pub struct Plist {
     pub(crate) p: Option<plist_t>,
@@ -201,12 +167,12 @@ impl Plist {
         Ok(json.to_owned())
     }
 
-    pub fn plist_type(&self) -> PlistType {
+    pub fn node_type(&self) -> PlistNodeType {
         if let Ok(p) = self.as_ptr() {
             let t = unsafe { plist_get_node_type(p) };
-            PlistType::from(t)
+            PlistNodeType::from(t)
         } else {
-            PlistType::None
+            PlistNodeType::None
         }
     }
 

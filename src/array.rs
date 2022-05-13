@@ -1,6 +1,7 @@
 use std::ptr::null_mut;
 use std::rc::Rc;
-use crate::{Getter, Plist, plist_array_append_item, plist_array_get_item, plist_array_get_size, plist_array_insert_item, plist_array_iter, plist_array_new_iter, plist_array_next_item, plist_array_remove_item, plist_array_set_item, plist_copy, plist_new_array, plist_t, PlistType};
+use crate::{Getter, Plist, plist_array_append_item, plist_array_get_item, plist_array_get_size, plist_array_insert_item, plist_array_iter, plist_array_new_iter, plist_array_next_item, plist_array_remove_item, plist_array_set_item, plist_copy, plist_new_array, plist_t};
+use crate::plist_node_type::PlistNodeType;
 
 impl From<Vec<Plist>> for Plist {
     fn from(array: Vec<Plist>) -> Self {
@@ -121,7 +122,7 @@ impl IntoIterator for PlistArray {
 
 impl Plist {
     pub fn array(self) -> Option<PlistArray> {
-        if self.plist_type() != PlistType::Array {
+        if self.node_type() != PlistNodeType::Array {
             return None;
         }
 

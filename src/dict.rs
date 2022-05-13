@@ -3,7 +3,8 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::ptr::null_mut;
 use std::rc::Rc;
-use crate::{Getter, Plist, plist_copy, plist_dict_get_item, plist_dict_get_size, plist_dict_iter, plist_dict_merge, plist_dict_new_iter, plist_dict_next_item, plist_dict_remove_item, plist_dict_set_item, plist_new_dict, plist_t, PlistType};
+use crate::{Getter, Plist, plist_copy, plist_dict_get_item, plist_dict_get_size, plist_dict_iter, plist_dict_merge, plist_dict_new_iter, plist_dict_next_item, plist_dict_remove_item, plist_dict_set_item, plist_new_dict, plist_t};
+use crate::plist_node_type::PlistNodeType;
 
 impl From<HashMap<&str, Plist>> for Plist {
     fn from(dict: HashMap<&str, Plist>) -> Self {
@@ -172,7 +173,7 @@ impl Into<Rc<Plist>> for PlistDict {
 
 impl Plist {
     pub fn dict(self) -> Option<PlistDict> {
-        if self.plist_type() != PlistType::Dictionary {
+        if self.node_type() != PlistNodeType::Dictionary {
             return None
         }
 
