@@ -8,7 +8,7 @@ impl Plist {
     pub fn as_str(&self) -> Option<String> {
         let mut val: *mut c_char = null_mut();
         unsafe {
-            plist_get_string_val(self.get_ptr().ok()?, &mut val)
+            plist_get_string_val(self.as_ptr().ok()?, &mut val)
         };
 
         if val.is_null() {
@@ -26,7 +26,7 @@ impl Plist {
 
     pub fn as_bool(&self) -> Option<bool> {
         let mut bool: u8 = u8::MAX;
-        unsafe { plist_get_bool_val(self.get_ptr().ok()?, &mut bool) };
+        unsafe { plist_get_bool_val(self.as_ptr().ok()?, &mut bool) };
 
         if bool == u8::MAX {
             return None
@@ -37,7 +37,7 @@ impl Plist {
 
     pub fn as_key(&self) -> Option<String> {
         let mut raw: *mut c_char = null_mut();
-        unsafe { plist_get_key_val(self.get_ptr().ok()?, &mut raw) };
+        unsafe { plist_get_key_val(self.as_ptr().ok()?, &mut raw) };
 
         if raw.is_null() {
             return None
@@ -59,7 +59,7 @@ impl Plist {
         }
 
         let mut uint: u64  = 0;
-        unsafe { plist_get_uint_val(self.get_ptr().ok()?,  &mut uint) };
+        unsafe { plist_get_uint_val(self.as_ptr().ok()?, &mut uint) };
 
         Some(uint)
     }
@@ -70,7 +70,7 @@ impl Plist {
         }
 
         let mut real: f64 = 0.0;
-        unsafe { plist_get_real_val(self.get_ptr().ok()?, &mut real) };
+        unsafe { plist_get_real_val(self.as_ptr().ok()?, &mut real) };
 
         Some(real)
     }
@@ -78,7 +78,7 @@ impl Plist {
     pub fn as_data(&self) -> Option<Vec<i8>> {
         let mut raw: *mut c_char = null_mut();
         let mut length: u64 = 0;
-        unsafe { plist_get_data_val(self.get_ptr().ok()?, &mut raw, &mut length) };
+        unsafe { plist_get_data_val(self.as_ptr().ok()?, &mut raw, &mut length) };
 
         if raw.is_null() {
             return None
@@ -96,7 +96,7 @@ impl Plist {
         }
 
         let mut uid: u64 = 0;
-        unsafe { plist_get_uid_val(self.get_ptr().ok()?, &mut uid) };
+        unsafe { plist_get_uid_val(self.as_ptr().ok()?, &mut uid) };
 
         Some(uid)
     }
@@ -112,7 +112,7 @@ impl Setter<String> for Plist {
         let string = CString::new(string).unwrap();
         let string = string.as_ptr();
 
-        unsafe { plist_set_string_val(self.get_ptr().unwrap(), string) }
+        unsafe { plist_set_string_val(self.as_ptr().unwrap(), string) }
     }
 }
 
@@ -121,26 +121,26 @@ impl Setter<&str> for Plist {
         let string = CString::new(string).unwrap();
         let string = string.as_ptr();
 
-        unsafe { plist_set_string_val(self.get_ptr().unwrap(), string) }
+        unsafe { plist_set_string_val(self.as_ptr().unwrap(), string) }
     }
 }
 
 impl Setter<bool> for Plist {
     fn set(&self, bool: bool) {
         let bool = if bool { 1 } else { 0 };
-        unsafe { plist_set_bool_val(self.get_ptr().unwrap(), bool) }
+        unsafe { plist_set_bool_val(self.as_ptr().unwrap(), bool) }
     }
 }
 
 impl Setter<u64> for Plist {
     fn set(&self, uint: u64) {
-        unsafe { plist_set_uint_val(self.get_ptr().unwrap(), uint) }
+        unsafe { plist_set_uint_val(self.as_ptr().unwrap(), uint) }
     }
 }
 
 impl Setter<f64> for Plist {
     fn set(&self, real: f64) {
-        unsafe { plist_set_real_val(self.get_ptr().unwrap(), real) }
+        unsafe { plist_set_real_val(self.as_ptr().unwrap(), real) }
     }
 }
 
@@ -148,7 +148,7 @@ impl Setter<&[i8]> for Plist {
     fn set(&self, data: &[i8]) {
         let length = data.len() as u64;
         let data = data.as_ptr();
-        unsafe { plist_set_data_val(self.get_ptr().unwrap(), data, length) }
+        unsafe { plist_set_data_val(self.as_ptr().unwrap(), data, length) }
     }
 }
 
@@ -157,15 +157,15 @@ impl Plist {
         let string = CString::new(string).unwrap();
         let string = string.as_ptr();
 
-        unsafe { plist_set_key_val(self.get_ptr().unwrap(), string) }
+        unsafe { plist_set_key_val(self.as_ptr().unwrap(), string) }
     }
 
     pub fn set_date(&self, sec: i32, usec: i32) {
-        unsafe { plist_set_date_val(self.get_ptr().unwrap(), sec, usec) }
+        unsafe { plist_set_date_val(self.as_ptr().unwrap(), sec, usec) }
     }
 
     pub fn set_uid(&self, uid: u64) {
-        unsafe { plist_set_uid_val(self.get_ptr().unwrap(), uid) }
+        unsafe { plist_set_uid_val(self.as_ptr().unwrap(), uid) }
     }
 }
 

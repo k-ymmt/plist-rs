@@ -73,14 +73,14 @@ impl Debug for Plist {
 }
 
 impl Plist {
-    fn new(plist: plist_t) -> Self {
+    pub fn new(plist: plist_t) -> Self {
         Plist {
             p: Some(plist),
             rawP: None
         }
     }
 
-    fn new_with_weak(plist: plist_t) -> Self {
+    pub fn new_with_weak(plist: plist_t) -> Self {
         Plist {
             p: None,
             rawP: Some(plist)
@@ -145,7 +145,7 @@ impl Plist {
     }
 
     pub fn copy(&self) -> Self {
-        let p = unsafe { plist_copy(self.get_ptr().unwrap()) };
+        let p = unsafe { plist_copy(self.as_ptr().unwrap()) };
 
         Plist::new(p)
     }
@@ -154,7 +154,7 @@ impl Plist {
         let mut xml: *mut c_char = std::ptr::null_mut();
         let mut length = 0;
         unsafe {
-            PlistError::try_from(plist_to_xml(self.get_ptr()?, &mut xml, &mut length))
+            PlistError::try_from(plist_to_xml(self.as_ptr()?, &mut xml, &mut length))
         }?;
 
         let result = unsafe { CStr::from_ptr(xml) };
@@ -170,7 +170,7 @@ impl Plist {
         let mut raw: *mut c_char = null_mut();
         let mut length: u32 = 0;
         unsafe {
-            PlistError::try_from(plist_to_bin(self.get_ptr()?, &mut raw, &mut length))
+            PlistError::try_from(plist_to_bin(self.as_ptr()?, &mut raw, &mut length))
         }?;
 
         let bin = unsafe { std::slice::from_raw_parts(raw as *const i8, length as usize) };
@@ -188,7 +188,7 @@ impl Plist {
         let mut length: u32 = 0;
 
         unsafe {
-            PlistError::try_from(plist_to_json(self.get_ptr()?, &mut raw, &mut length, prettify))
+            PlistError::try_from(plist_to_json(self.as_ptr()?, &mut raw, &mut length, prettify))
         }?;
 
         let json = unsafe { CStr::from_ptr(raw) };
@@ -202,7 +202,7 @@ impl Plist {
     }
 
     pub fn plist_type(&self) -> PlistType {
-        if let Ok(p) = self.get_ptr() {
+        if let Ok(p) = self.as_ptr() {
             let t = unsafe { plist_get_node_type(p) };
             PlistType::from(t)
         } else {
@@ -210,7 +210,7 @@ impl Plist {
         }
     }
 
-    pub(crate) fn get_ptr(&self) -> Result<plist_t, PlistError> {
+    pub fn as_ptr(&self) -> Result<plist_t, PlistError> {
         match self.p {
             Some(p) => Ok(p),
             None => match self.rawP {
@@ -220,7 +220,7 @@ impl Plist {
         }
     }
 
-    pub(crate) fn to_weak(&mut self) {
+    pub(crate) fn replace_weak(&mut self) {
         if let Some(p) = self.p {
             self.rawP = Some(p);
             self.p = None;

@@ -7,7 +7,7 @@ impl From<Vec<Plist>> for Plist {
         let p = unsafe { plist_new_array() };
         for value in array {
             unsafe {
-                let value = plist_copy(value.get_ptr().unwrap());
+                let value = plist_copy(value.as_ptr().unwrap());
                 plist_array_append_item(p, value)
             }
         }
@@ -21,7 +21,7 @@ impl From<&[Plist]> for Plist {
         let p = unsafe { plist_new_array() };
         for value in array {
             unsafe {
-                let value = plist_copy(value.get_ptr().unwrap());
+                let value = plist_copy(value.as_ptr().unwrap());
                 plist_array_append_item(p, value);
             }
         }
@@ -33,7 +33,7 @@ impl From<&[Plist]> for Plist {
 impl Getter<usize> for Plist {
     fn get(&self, index: usize) -> Option<Self> {
         let p = unsafe {
-            plist_array_get_item(self.get_ptr().ok()?, index as u32)
+            plist_array_get_item(self.as_ptr().ok()?, index as u32)
         };
         if p.is_null() {
             return None;
@@ -56,7 +56,7 @@ impl Into<Rc<Plist>> for PlistArray {
 impl PlistArray {
     pub fn len(&self) -> usize {
         unsafe {
-            plist_array_get_size(self.inner.get_ptr().unwrap()) as usize
+            plist_array_get_size(self.inner.as_ptr().unwrap()) as usize
         }
     }
 
@@ -65,22 +65,22 @@ impl PlistArray {
     }
 
     pub fn set(&self, mut item: Plist, index: u32) {
-        unsafe { plist_array_set_item(self.inner.get_ptr().unwrap(), item.get_ptr().unwrap(), index) }
-        item.to_weak();
+        unsafe { plist_array_set_item(self.inner.as_ptr().unwrap(), item.as_ptr().unwrap(), index) }
+        item.replace_weak();
     }
 
     pub fn append(&self, mut item: Plist) {
-        unsafe { plist_array_append_item(self.inner.get_ptr().unwrap(), item.get_ptr().unwrap()) }
-        item.to_weak();
+        unsafe { plist_array_append_item(self.inner.as_ptr().unwrap(), item.as_ptr().unwrap()) }
+        item.replace_weak();
     }
 
     pub fn insert(&self, mut item: Plist, index: u32) {
-        unsafe { plist_array_insert_item(self.inner.get_ptr().unwrap(), item.get_ptr().unwrap(), index) }
-        item.to_weak();
+        unsafe { plist_array_insert_item(self.inner.as_ptr().unwrap(), item.as_ptr().unwrap(), index) }
+        item.replace_weak();
     }
 
     pub fn remove(&self, index: u32) {
-        unsafe { plist_array_remove_item(self.inner.get_ptr().unwrap(), index) }
+        unsafe { plist_array_remove_item(self.inner.as_ptr().unwrap(), index) }
     }
 }
 
@@ -94,7 +94,7 @@ impl Iterator for PlistArrayIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut p: plist_t = null_mut();
-        unsafe { plist_array_next_item(self.p.get_ptr().unwrap(), self.iter, &mut p) }
+        unsafe { plist_array_next_item(self.p.as_ptr().unwrap(), self.iter, &mut p) }
 
         if p.is_null() {
             return None;
@@ -110,7 +110,7 @@ impl IntoIterator for PlistArray {
 
     fn into_iter(self) -> Self::IntoIter {
         let mut iter: plist_array_iter = null_mut();
-        unsafe { plist_array_new_iter(self.inner.get_ptr().unwrap(), &mut iter) };
+        unsafe { plist_array_new_iter(self.inner.as_ptr().unwrap(), &mut iter) };
         let p = Rc::clone(&self.inner);
         PlistArrayIter {
             p,

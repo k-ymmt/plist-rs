@@ -11,7 +11,7 @@ impl From<HashMap<&str, Plist>> for Plist {
         for (key, value) in dict {
             let key = CString::new(key).unwrap();
             let key = key.as_ptr();
-            unsafe { plist_dict_set_item(p, key, plist_copy(value.get_ptr().unwrap())) }
+            unsafe { plist_dict_set_item(p, key, plist_copy(value.as_ptr().unwrap())) }
         }
 
         Plist::new(p)
@@ -23,7 +23,7 @@ impl Getter<&str> for Plist {
         let key = CString::new(index).unwrap();
         let key = key.as_ptr();
         let p = unsafe {
-            plist_dict_get_item(self.get_ptr().ok()?, key)
+            plist_dict_get_item(self.as_ptr().ok()?, key)
         };
 
         if p.is_null() {
@@ -39,7 +39,7 @@ impl Getter<String> for Plist {
         let key = CString::new(index).unwrap();
         let key = key.as_ptr();
         let p = unsafe {
-            plist_dict_get_item(self.get_ptr().ok()?, key)
+            plist_dict_get_item(self.as_ptr().ok()?, key)
         };
 
         if p.is_null() {
@@ -56,12 +56,12 @@ pub struct PlistDict {
 
 impl PlistDict {
     pub fn len(&self) -> usize {
-        unsafe { plist_dict_get_size(self.inner.get_ptr().unwrap()) as usize }
+        unsafe { plist_dict_get_size(self.inner.as_ptr().unwrap()) as usize }
     }
 
     pub fn merge(&self, source: &PlistDict) {
-        let mut p = self.inner.get_ptr().unwrap();
-        let s = source.inner.get_ptr().unwrap();
+        let mut p = self.inner.as_ptr().unwrap();
+        let s = source.inner.as_ptr().unwrap();
         unsafe { plist_dict_merge(&mut p, s) }
     }
 }
@@ -74,8 +74,8 @@ impl DictSetter<String> for PlistDict {
     fn set(&self, key: String, mut value: Plist) {
         let key = CString::new(key).unwrap();
         let key = key.as_ptr();
-        unsafe { plist_dict_set_item(self.inner.get_ptr().unwrap(), key, value.get_ptr().unwrap()) }
-        value.to_weak();
+        unsafe { plist_dict_set_item(self.inner.as_ptr().unwrap(), key, value.as_ptr().unwrap()) }
+        value.replace_weak();
     }
 }
 
@@ -83,8 +83,8 @@ impl DictSetter<&str> for PlistDict {
     fn set(&self, key: &str, mut value: Plist) {
         let key = CString::new(key).unwrap();
         let key = key.as_ptr();
-        unsafe { plist_dict_set_item(self.inner.get_ptr().unwrap(), key, value.get_ptr().unwrap()) }
-        value.to_weak();
+        unsafe { plist_dict_set_item(self.inner.as_ptr().unwrap(), key, value.as_ptr().unwrap()) }
+        value.replace_weak();
     }
 }
 
@@ -112,7 +112,7 @@ impl DictRemove<String> for PlistDict {
     fn remove(&self, key: String) {
         let key = CString::new(key).unwrap();
         let key = key.as_ptr();
-        unsafe { plist_dict_remove_item(self.inner.get_ptr().unwrap(), key) }
+        unsafe { plist_dict_remove_item(self.inner.as_ptr().unwrap(), key) }
     }
 }
 
@@ -120,7 +120,7 @@ impl DictRemove<&str> for PlistDict {
     fn remove(&self, key: &str) {
         let key = CString::new(key).unwrap();
         let key = key.as_ptr();
-        unsafe { plist_dict_remove_item(self.inner.get_ptr().unwrap(), key) }
+        unsafe { plist_dict_remove_item(self.inner.as_ptr().unwrap(), key) }
     }
 }
 
@@ -135,7 +135,7 @@ impl Iterator for PlistDictIter {
     fn next(&mut self) -> Option<Self::Item> {
         let mut key: *mut c_char = null_mut();
         let mut value: plist_t = null_mut();
-        unsafe { plist_dict_next_item(self.p.get_ptr().ok()?, self.iter, &mut key, &mut value) };
+        unsafe { plist_dict_next_item(self.p.as_ptr().ok()?, self.iter, &mut key, &mut value) };
 
         if key.is_null() || value.is_null() {
             return None
@@ -155,7 +155,7 @@ impl IntoIterator for PlistDict {
 
     fn into_iter(self) -> Self::IntoIter {
         let mut iter: plist_dict_iter = null_mut();
-        unsafe { plist_dict_new_iter(self.inner.get_ptr().unwrap(), &mut iter) };
+        unsafe { plist_dict_new_iter(self.inner.as_ptr().unwrap(), &mut iter) };
 
         PlistDictIter {
             p: Rc::clone(&self.inner.clone()),
