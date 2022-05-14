@@ -186,7 +186,7 @@ impl Plist {
         }
     }
 
-    pub(crate) fn replace_weak(&mut self) {
+    pub fn unowned_ptr(&mut self) {
         if let Some(p) = self.p {
             self.rawP = Some(p);
             self.p = None;

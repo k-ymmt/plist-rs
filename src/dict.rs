@@ -76,7 +76,7 @@ impl DictSetter<String> for PlistDict {
         let key = CString::new(key).unwrap();
         let key = key.as_ptr();
         unsafe { plist_dict_set_item(self.inner.as_ptr().unwrap(), key, value.as_ptr().unwrap()) }
-        value.replace_weak();
+        value.unowned_ptr();
     }
 }
 
@@ -85,7 +85,7 @@ impl DictSetter<&str> for PlistDict {
         let key = CString::new(key).unwrap();
         let key = key.as_ptr();
         unsafe { plist_dict_set_item(self.inner.as_ptr().unwrap(), key, value.as_ptr().unwrap()) }
-        value.replace_weak();
+        value.unowned_ptr();
     }
 }
 

@@ -67,17 +67,17 @@ impl PlistArray {
 
     pub fn set(&self, mut item: Plist, index: u32) {
         unsafe { plist_array_set_item(self.inner.as_ptr().unwrap(), item.as_ptr().unwrap(), index) }
-        item.replace_weak();
+        item.unowned_ptr();
     }
 
     pub fn append(&self, mut item: Plist) {
         unsafe { plist_array_append_item(self.inner.as_ptr().unwrap(), item.as_ptr().unwrap()) }
-        item.replace_weak();
+        item.unowned_ptr();
     }
 
     pub fn insert(&self, mut item: Plist, index: u32) {
         unsafe { plist_array_insert_item(self.inner.as_ptr().unwrap(), item.as_ptr().unwrap(), index) }
-        item.replace_weak();
+        item.unowned_ptr();
     }
 
     pub fn remove(&self, index: u32) {
